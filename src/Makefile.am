@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = foreign
 
 CXX = g++
 
-bin_PROGRAMS = parameter_server ps_test csv_to_libsvm
+bin_PROGRAMS = parameter_server ps_test csv_to_libsvm 
 
 LIBS         =  -laws-cpp-sdk-s3 -laws-cpp-sdk-core \
 		-lcurl -lssl -lcrypto -lz -ldl -lkrb5 -lk5crypto \
@@ -32,7 +32,10 @@ CPPFLAGS = -static -static-libgcc -static-libstdc++ \
 
 CPP_SOURCES = InputReader.cpp Utils.cpp \
               Dataset.cpp Matrix.cpp \
+	      OptimizationMethod.cpp AdaGrad.cpp \
+	      Momentum.cpp SGD.cpp Nesterov.cpp\
 	      Model.cpp LRModel.cpp SoftmaxModel.cpp SparseLRModel.cpp \
+	      S3Client.cpp \
 	      SparseMFModel.cpp MFModel.cpp\
               ModelGradient.cpp MlUtils.cpp Configuration.cpp \
               Checksum.cpp \
@@ -41,17 +44,9 @@ CPP_SOURCES = InputReader.cpp Utils.cpp \
 	      MFNetflixTask.cpp \
 	      LoadingSparseTaskS3.cpp LoadingNetflixTask.cpp \
               TasksWait.cpp MurmurHash3.cpp \
-	      S3Iterator.cpp S3SparseIterator.cpp \
-	      PerformanceLambdaTask.cpp \
+	      S3SparseIterator.cpp S3Iterator.cpp S3IteratorLibsvm.cpp \
 	      S3.cpp SparseDataset.cpp \
 	      PSSparseServerTask.cpp PSSparseServerInterface.cpp
-
-CPP_SOURCES_SOFTMAX = InputReader.cpp Utils.cpp \
-              Dataset.cpp Matrix.cpp Model.cpp LRModel.cpp \
-              ModelGradient.cpp MlUtils.cpp Configuration.cpp \
-              Checksum.cpp SoftmaxModel.cpp \
-              Serializers.cpp  \
-              SparseDataset.cpp MurmurHash3.cpp
 
 parameter_server_SOURCES  = parameter_server.cpp $(CPP_SOURCES)
 

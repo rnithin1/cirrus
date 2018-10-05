@@ -1,10 +1,11 @@
 #include <Tasks.h>
 
-#include "Serializers.h"
-#include "InputReader.h"
-#include "S3.h"
-#include "Utils.h"
-#include "config.h"
+#include <InputReader.h>
+#include <S3.h>
+#include <S3Client.h>
+#include <Serializers.h>
+#include <Utils.h>
+#include <config.h>
 
 namespace cirrus {
 
@@ -14,21 +15,19 @@ SparseDataset LoadingSparseTaskS3::read_dataset(
   InputReader input;
 
   std::string delimiter;
-  if (config.get_input_type() == "csv_space") {
+  if (config.get_load_input_type() == "csv_space") {
     delimiter = "";
-  } else if (config.get_input_type() == "csv_tab") {
+  } else if (config.get_load_input_type() == "csv_tab") {
     delimiter = "\t";
-  } else if (config.get_input_type() == "csv") {
+  } else if (config.get_load_input_type() == "csv") {
     delimiter = ",";
   } else {
     throw std::runtime_error("unknown input type");
   }
 
   // READ the kaggle criteo dataset
-  return input.read_input_criteo_kaggle_sparse(
-      config.get_input_path(),
-      delimiter,
-      config);
+  return input.read_input_criteo_kaggle_sparse(config.get_load_input_path(),
+                                               delimiter, config);
 }
 
 void LoadingSparseTaskS3::check_label(FEATURE_TYPE label) {
@@ -40,14 +39,14 @@ void LoadingSparseTaskS3::check_label(FEATURE_TYPE label) {
 /**
   * Check if loading was well done
   */
-void LoadingSparseTaskS3::check_loading(
-    const Configuration& config,
-    Aws::S3::S3Client& s3_client) {
+void LoadingSparseTaskS3::check_loading(const Configuration& config,
+                                        std::unique_ptr<S3Client>& s3_client) {
   std::cout << "[LOADER] Trying to get sample with id: " << 0 << std::endl;
 
-  std::string obj_id = std::to_string(hash_f(std::to_string(SAMPLE_BASE).c_str())) + "-CRITEO";
-  std::string data = s3_get_object_value(obj_id, s3_client, config.get_s3_bucket());
-  
+  std::string obj_id = std::to_string(SAMPLE_BASE);
+  std::string data =
+      s3_client->s3_get_object_value(obj_id, config.get_s3_bucket());
+
   SparseDataset dataset(data.data(), true);
   dataset.check();
   dataset.check_labels();
@@ -81,8 +80,7 @@ void LoadingSparseTaskS3::run(const Configuration& config) {
   std::cout << "[LOADER-SPARSE] " << "Read criteo input..." << std::endl;
 
   uint64_t s3_obj_num_samples = config.get_s3_size();
-  s3_initialize_aws();
-  auto s3_client = s3_create_client();
+  std::unique_ptr<S3Client> s3_client = std::make_unique<S3Client>();
 
   SparseDataset dataset = read_dataset(config);
   dataset.check();
@@ -107,9 +105,10 @@ void LoadingSparseTaskS3::run(const Configuration& config) {
       dataset.build_serialized_s3_obj(first_sample, last_sample, &len);
 
     std::cout << "Putting object in S3 with size: " << len << std::endl;
-    std::string obj_id = std::to_string(hash_f(std::to_string(SAMPLE_BASE + i).c_str())) + "-CRITEO";
-    s3_put_object(obj_id, s3_client, config.get_s3_bucket(),
-        std::string(s3_obj.get(), len));
+    // we hash names to help with scaling in S3
+    std::string obj_id = std::to_string(SAMPLE_BASE + i);
+    s3_client->s3_put_object(obj_id, config.get_s3_bucket(),
+                             std::string(s3_obj.get(), len));
   }
   check_loading(config, s3_client);
   std::cout << "LOADER-SPARSE terminated successfully" << std::endl;
