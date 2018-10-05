@@ -249,3 +249,4 @@ class GridSearch:
 
     def kill(self, i):
         self.cirrus_objs[i].kill()
+

@@ -72,3 +72,4 @@ class CostModel:
         total_s3_cost = total_s3_cost_h / (60 * 60) * num_secs
 
         return total_lambda_cost + total_vm_cost + total_s3_cost
+

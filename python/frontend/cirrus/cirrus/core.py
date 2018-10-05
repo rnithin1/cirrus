@@ -223,3 +223,4 @@ class BaseTask(object):
     @abstractmethod
     def define_config(self, fetch=False):
         pass
+

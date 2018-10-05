@@ -17,3 +17,4 @@ def command_dict_to_file(command_dict):
         with open("machine_%d.sh" % no, "w") as f:
             for cmd in lst:
                 f.write(cmd + "\n\n")
+

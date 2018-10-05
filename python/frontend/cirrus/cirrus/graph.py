@@ -321,3 +321,4 @@ def gen_loss(interval, menu, graph_type, oldfig, relayoutData, lockCamera):
 
 def display_dash():
     return IFrame('http://localhost:8050', width=1000, height=600)
+

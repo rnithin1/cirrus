@@ -116,3 +116,4 @@ class Ec2VMManager:
                     if instance.state['Name'] == 'running':
                         return
             time.sleep(1)
+
