@@ -23,7 +23,7 @@ In the Amazon AMI please do:
 
 In Ubuntu please do:
 
-    $ sudo apt-get install build-essential cmake automake zlib1g-dev libssl-dev libcurl4-nss-dev bison libldap2-dev libkrb5-dev libcurl4-openssl-dev libssl-dev uuid-dev zlib1g-dev libpulse-dev
+    $ sudo apt-get install build-essential cmake automake zlib1g-dev libssl-dev libcurl4-nss-dev bison libldap2-dev libkrb5-dev  libssl-dev uuid-dev zlib1g-dev libpulse-dev
 
 Building
 =========
