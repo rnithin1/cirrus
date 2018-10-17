@@ -16,9 +16,12 @@ def get_num_lambdas(ip="127.0.0.1", port=1337):
         clientsocket.send(GET_NUM_CONNS)
         clientsocket.settimeout(3)
         s = clientsocket.recv(32)
-        return struct.unpack("I", s)[0] - 1   # Subtract 1, as we don't count the clientsocket as a connection
-    except Exception as e:
-        print(e)
+        a = struct.unpack("I", s)[0]
+#        print("Amount of lambdas received:")
+#        print(a)
+#        print("--------------------------")
+        return a - 1   # Subtract 1, as we don't count the clientsocket as a connection
+    except Exception, e:
         clientsocket.close()
         return None
 
@@ -28,10 +31,9 @@ def get_last_time_error(ip="127.0.0.1", port=1338):
         clientsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         clientsocket.sendto(GET_LAST_TIME_ERROR, (ip, port))
         clientsocket.settimeout(10)
-        s = clientsocket.recv(192)
-        return struct.unpack("ddd", s)
-    except Exception as e:
-        print(e)
+        s = clientsocket.recv(256)      # Receives a packet of 4 floats or 256 bytes
+        return struct.unpack("dddd", s) # Unpack 4 floats
+    except Exception, e:
         return None
 
 
@@ -43,8 +45,7 @@ def get_num_updates(ip="127.0.0.1", port=1337):
         clientsocket.settimeout(3)
         s = clientsocket.recv(32)
         return struct.unpack("I", s)[0]
-    except Exception as e:
-        print(e)
+    except Exception, e:
         clientsocket.close()
         return None
 
@@ -55,7 +56,10 @@ def send_kill_signal(ip="127.0.0.1", port=1337):
         clientsocket.connect((ip, port))
         clientsocket.send(KILL_SIGNAL)
         return True
-    except Exception as e:
-        print(e)
+    except Exception, e:
         clientsocket.close()
         return False
+
+if __name__ == "__main__":
+
+    print get_num_lambdas("18.237.213.139", 1337)
